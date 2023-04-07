@@ -1,4 +1,6 @@
 .idea
 __pycache__
+module/__pycache__
 chat-connexion.txt
 venv
+module/__init__.py
