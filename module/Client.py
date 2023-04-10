@@ -59,6 +59,7 @@ class Client:
                 message = self.socket.recv(1024).decode('utf-8')
                 print(message)
                 if message == "Le serveur est en train de se fermer.\n":
+                    print("Entrer n'importe quelle touche pour quitter")
                     self.socket.close()
                     self.not_stop = False
                     break
