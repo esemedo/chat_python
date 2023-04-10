@@ -1,7 +1,4 @@
 import socket
-import sys
-from datetime import datetime
-
 from module.Serveur import Serveur
 import json
 from threading import Thread
@@ -16,24 +13,6 @@ s.liaison((IP, PORT))
 server = s.socket
 print("Lancement du serveur...")
 
-
-def admin_shut():
-    while s.not_stop:
-        try:
-            message = input("Tapez \"quit\" pour fermer le serveur...\n")
-            if message.lower() == "quit":
-                s.shutdown()
-                #sys.exit()
-                break
-        except (ConnectionAbortedError, KeyboardInterrupt):
-            print("Error")
-            s.shutdown()
-            #sys.exit()
-            break
-
-
-#shutdown_thread = Thread(target=admin_shut)
-#shutdown_thread.start()
 while s.not_stop:
     try:
         # Attente de connexions entrantes
@@ -46,8 +25,6 @@ while s.not_stop:
         # Création d'un thread pour gérer la connexion du client
         thread = Thread(target=s.handle_client, args=(client, s.pseudo, address, Thread))
         thread.start()
-        #admin_shut()
     except (ConnectionAbortedError, KeyboardInterrupt):
         s.shutdown()
-        #sys.exit()
         break

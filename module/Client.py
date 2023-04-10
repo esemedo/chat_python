@@ -1,3 +1,4 @@
+import os
 import socket
 import sys
 
@@ -6,10 +7,15 @@ class Client:
     def __init__(self, socket):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # socket client
         self.not_stop = True
-
+        self.error = False
     def connection(self, addrr):
         self.socket.connect(addrr)
-
+    def end_connexion(self):
+        print("La connexion a été interrompue de manière inattendue.")
+        self.not_stop = False
+        self.socket.close()
+        os._exit(0)
+        return
     def comparison(self, p, pseudos_tab):
         """
             Regarde si le pseudo entré existe déjà
@@ -44,10 +50,8 @@ class Client:
                             self.socket.close()
                             break
                         self.socket.send(message.encode('utf-8'))
-            except (BrokenPipeError, KeyboardInterrupt, ConnectionResetError, OSError, ConnectionAbortedError):
-                print("La connexion a été interrompue de manière inattendue.")
-                self.not_stop = False
-                self.socket.close()
+            except (BrokenPipeError, ConnectionResetError, OSError, ConnectionAbortedError):
+                self.end_connexion()
                 break
 
     def receive(self):
@@ -63,8 +67,7 @@ class Client:
                     self.socket.close()
                     self.not_stop = False
                     break
-            except (BrokenPipeError, KeyboardInterrupt, ConnectionResetError, OSError, ConnectionAbortedError):
-                print("La connexion a été interrompue de manière inattendue.receive")
-                self.not_stop = False
-                self.socket.close()
+            except (BrokenPipeError, ConnectionResetError, OSError, ConnectionAbortedError):
+                self.end_connexion()
                 break
+
