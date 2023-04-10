@@ -1,3 +1,7 @@
+import socket
+import sys
+
+
 class Client:
     def __init__(self, socket):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # socket client
@@ -16,7 +20,7 @@ class Client:
                     return True
         return False
 
-    def send(self, messagePseudo, p, sys):
+    def send(self, messagePseudo, p):
         """
         Envoi des messages au serveur.
         """
@@ -34,22 +38,19 @@ class Client:
                         print("Le pseudo ne doit ni être vide ni excéder 20 caractères")
                 else:
                     message = input("")
-                    if message == 'EXIT':  # Si l'utilisateur entre "EXIT", déconnexion du client
-                        self.not_stop = False
-                        self.socket.close()
-                        break
-                    self.socket.send(message.encode('utf-8'))
-            except (BrokenPipeError, KeyboardInterrupt, ConnectionResetError):
+                    if message != "":
+                        if message.upper() == 'EXIT':  # Si l'utilisateur entre "EXIT", déconnexion du client
+                            self.not_stop = False
+                            self.socket.close()
+                            break
+                        self.socket.send(message.encode('utf-8'))
+            except (BrokenPipeError, KeyboardInterrupt, ConnectionResetError, OSError, ConnectionAbortedError):
+                print("La connexion a été interrompue de manière inattendue.")
+                self.not_stop = False
                 self.socket.close()
-                sys.exit()
                 break
-    def shut(self, sys):
-        self.not_stop = False
-        self.socket.close()
-        sys.exit()
-        return
 
-    def receive(self, sys):
+    def receive(self):
         """
         Réception des messages du serveur.
         """
@@ -57,11 +58,13 @@ class Client:
             try:
                 message = self.socket.recv(1024).decode('utf-8')
                 print(message)
-                if message == "shutdown":
-                    self.shut(sys)
-            except (BrokenPipeError, KeyboardInterrupt, ConnectionResetError, OSError):
-                print("La connexion avec le serveur a été interrompue.")
+                if message == "Le serveur est en train de se fermer.\n":
+                    print("Entrer n'importe quelle touche pour quitter")
+                    self.socket.close()
+                    self.not_stop = False
+                    break
+            except (BrokenPipeError, KeyboardInterrupt, ConnectionResetError, OSError, ConnectionAbortedError):
+                print("La connexion a été interrompue de manière inattendue.receive")
+                self.not_stop = False
                 self.socket.close()
-                sys.exit()
                 break
-
